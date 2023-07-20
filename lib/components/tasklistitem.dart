@@ -14,53 +14,62 @@ class TaskListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final selectedColor = Theme.of(context).colorScheme.tertiary;
+    final unselectedColor = Theme.of(context).colorScheme.primary;
+
     var state = context.watch<MyAppState>();
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 500),
-      child: ListTile(
-          leading: Icon(
-            Icons.circle_sharp,
-            color: task.isDone ? Colors.green : Colors.amber,
-          ),
-          title: Text(task.name),
-          subtitle: Column(
+
+    String formatDate(DateTime date) {
+      if (date.day == DateTime.now().day &&
+          date.month == DateTime.now().month &&
+          date.year == DateTime.now().year) {
+        return "Today";
+      }
+      return "${date.day}/${date.month}/${date.year}";
+    }
+
+    return ListTile(
+        dense: task.isDone,
+        enabled: task.isDone ? false : true,
+        leading: Icon(
+          task.isDone ? Icons.check_circle : Icons.circle_outlined,
+          color: task.isDone ? selectedColor : unselectedColor,
+        ),
+        title: Text(task.name),
+        subtitle: AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                task.createdTime.toString(),
+                formatDate(task.createdTime),
                 style: const TextStyle(fontSize: 10),
               ),
               if (task.isDone)
-                const Text(
+                Text(
                   "Completed",
                   style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.bold,
-                      color: Colors.green),
+                      color: selectedColor),
                 ),
             ],
           ),
-          trailing: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              IconButton(
-                onPressed: () {
-                  state.deleteTask(task.id);
-                },
-                icon: const Icon(Icons.delete_outline_outlined),
+        ),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              onPressed: () {
+                state.markTaskAsDone(task.id);
+              },
+              icon: Icon(
+                task.isDone ? Icons.circle_rounded : Icons.circle_outlined,
+                color: task.isDone ? selectedColor : unselectedColor,
+                size: 35,
               ),
-              IconButton(
-                onPressed: () {
-                  state.markTaskAsDone(task.id);
-                },
-                icon: const Icon(
-                  Icons.check_circle,
-                  color: Colors.green,
-                  size: 35,
-                ),
-              ),
-            ],
-          )),
-    );
+            ),
+          ],
+        ));
   }
 }
